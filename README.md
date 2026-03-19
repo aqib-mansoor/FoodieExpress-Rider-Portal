@@ -1,20 +1,66 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# FoodieExpress - Rider Portal
 
-# Run and deploy your AI Studio app
+A delivery partner application built with React + TypeScript for riders to manage deliveries and track earnings on the FoodieExpress platform.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/af74cbe5-f796-4295-8ea3-18abb9098506
+## Features
 
-## Run Locally
+### Delivery Management
 
-**Prerequisites:**  Node.js
+· View assigned deliveries with customer details
+· Accept or decline delivery requests
+· Real-time order status updates (Picked Up → On the Way → Delivered)
+· Navigation assistance with live route tracking
+· Customer contact information
+· Proof of delivery with photo capture
+· Cash collection tracking for COD orders
 
+### Earnings
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+· Real-time earnings calculator
+· Daily, weekly, and monthly payout summaries
+· Bonus and incentive tracking
+· Delivery completion rate
+· Withdrawal history
+
+### Profile
+
+· Availability toggle (Online/Offline)
+· Performance metrics and ratings
+· Delivery history
+· Personal information management
+
+---
+
+## Tech Stack
+
+· Frontend: React 18 + TypeScript
+· Routing: React Router DOM
+· Styling: Tailwind CSS
+· Animations: Framer Motion
+· Maps: Leaflet/Mapbox integration
+· Notifications: React Hot Toast
+· Charts: Recharts
+· Icons: React Icons
+· Build Tool: Vite
+
+---
+
+## Responsive Design
+
+· Mobile-first approach for on-road use
+· Large touch-friendly buttons
+· Optimized for all devices
+
+---
+
+## Rider Workflow
+
+1. Login – Secure authentication
+2. Go Online – Toggle availability
+3. Receive Orders – Get nearby delivery assignments
+4. Accept/Decline – Choose deliveries
+5. Pick Up – Confirm order collection
+6. Deliver – Update status and collect payment
+7. Complete – Mark delivered
