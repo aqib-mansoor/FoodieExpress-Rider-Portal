@@ -1,0 +1,8 @@
+{
+  "name": "FoodieExpress - Rider Portal",
+  "description": "A dedicated delivery partner application for riders to manage orders, track earnings, and navigate deliveries efficiently.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ]
+}
