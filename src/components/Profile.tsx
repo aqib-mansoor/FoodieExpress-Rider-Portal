@@ -5,7 +5,7 @@ import { cn } from '../utils';
 import toast from 'react-hot-toast';
 
 export const Profile: React.FC = () => {
-  const { rider, logout } = useRiderStore();
+  const { rider, logout, totalDeliveries } = useRiderStore();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(rider.name);
 
@@ -84,7 +84,7 @@ export const Profile: React.FC = () => {
             <div className="flex justify-center mb-2 text-purple-500">
               <Clock size={20} />
             </div>
-            <p className="text-2xl font-bold text-stone-900">{rider.totalDeliveries}</p>
+            <p className="text-2xl font-bold text-stone-900">{totalDeliveries}</p>
             <p className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Total Orders</p>
           </div>
         </div>

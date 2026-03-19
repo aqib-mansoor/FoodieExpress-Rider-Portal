@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Order, RiderProfile } from './types';
+import { Order, RiderProfile, Withdrawal } from './types';
 import { MOCK_ORDERS, MOCK_RIDER } from './mockData';
 import toast from 'react-hot-toast';
 
@@ -8,7 +8,11 @@ interface RiderContextType {
   rider: RiderProfile;
   orders: Order[];
   activeOrder: Order | undefined;
-  earnings: number;
+  availableBalance: number;
+  lifetimeEarnings: number;
+  incentives: number;
+  totalDeliveries: number;
+  withdrawals: Withdrawal[];
   login: (email: string, password: string) => boolean;
   signup: (data: any) => void;
   logout: () => void;
@@ -16,7 +20,7 @@ interface RiderContextType {
   acceptOrder: (orderId: string) => void;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   simulateNewOrder: () => void;
-  withdrawFunds: () => void;
+  withdrawFunds: (method: string, details: string) => void;
 }
 
 const RiderContext = createContext<RiderContextType | undefined>(undefined);
@@ -31,14 +35,34 @@ export const RiderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
-  const [earnings, setEarnings] = useState<number>(() => {
-    const savedEarnings = localStorage.getItem('fe_rider_earnings');
-    return savedEarnings ? parseFloat(savedEarnings) : 1200;
+  const [availableBalance, setAvailableBalance] = useState<number>(() => {
+    const savedBalance = localStorage.getItem('fe_rider_balance');
+    return savedBalance ? parseFloat(savedBalance) : 1200;
+  });
+  const [lifetimeEarnings, setLifetimeEarnings] = useState<number>(() => {
+    const savedLifetime = localStorage.getItem('fe_rider_lifetime_earnings');
+    return savedLifetime ? parseFloat(savedLifetime) : 31200;
+  });
+  const [incentives, setIncentives] = useState<number>(() => {
+    const savedIncentives = localStorage.getItem('fe_rider_incentives');
+    return savedIncentives ? parseFloat(savedIncentives) : 450;
+  });
+  const [totalDeliveries, setTotalDeliveries] = useState<number>(() => {
+    const savedDeliveries = localStorage.getItem('fe_rider_total_deliveries');
+    return savedDeliveries ? parseInt(savedDeliveries) : MOCK_RIDER.totalDeliveries;
+  });
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>(() => {
+    const savedWithdrawals = localStorage.getItem('fe_rider_withdrawals');
+    return savedWithdrawals ? JSON.parse(savedWithdrawals) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('fe_rider_earnings', earnings.toString());
-  }, [earnings]);
+    localStorage.setItem('fe_rider_balance', availableBalance.toString());
+    localStorage.setItem('fe_rider_lifetime_earnings', lifetimeEarnings.toString());
+    localStorage.setItem('fe_rider_incentives', incentives.toString());
+    localStorage.setItem('fe_rider_total_deliveries', totalDeliveries.toString());
+    localStorage.setItem('fe_rider_withdrawals', JSON.stringify(withdrawals));
+  }, [availableBalance, lifetimeEarnings, incentives, totalDeliveries, withdrawals]);
 
   const login = (email: string, password: string) => {
     if (email === 'ali@gmail.com' && password === '123456') {
@@ -104,15 +128,19 @@ export const RiderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const deliveredOrder = orders.find(o => o.id === orderId);
       if (deliveredOrder) {
         // Update rider stats
-        const updatedRider = {
-          ...rider,
-          totalDeliveries: rider.totalDeliveries + 1,
-        };
-        setRider(updatedRider);
-        localStorage.setItem('fe_rider_data', JSON.stringify(updatedRider));
+        setTotalDeliveries(prev => prev + 1);
         
         // Update earnings
-        setEarnings(prev => prev + deliveredOrder.deliveryFee);
+        setAvailableBalance(prev => prev + deliveredOrder.deliveryFee);
+        setLifetimeEarnings(prev => prev + deliveredOrder.deliveryFee);
+        
+        // Add small incentive for every 5th delivery
+        if ((totalDeliveries + 1) % 5 === 0) {
+          setIncentives(prev => prev + 50);
+          setAvailableBalance(prev => prev + 50);
+          setLifetimeEarnings(prev => prev + 50);
+          toast.success('Bonus incentive earned! 🌟');
+        }
       }
       
       setActiveOrderId(null);
@@ -157,13 +185,28 @@ export const RiderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     toast('New delivery request available!', { icon: '🛵', duration: 5000 });
   };
 
-  const withdrawFunds = () => {
-    if (earnings <= 0) {
+  const withdrawFunds = (method: string, details: string) => {
+    if (availableBalance <= 0) {
       toast.error('No funds available for withdrawal');
       return;
     }
-    toast.success(`Withdrawal of Rs.${earnings} initiated to your bank account!`);
-    setEarnings(0);
+    if (!method || !details) {
+      toast.error('Please select a payment method and provide details');
+      return;
+    }
+    
+    const newWithdrawal: Withdrawal = {
+      id: `wth-${Date.now()}`,
+      amount: availableBalance,
+      method,
+      details,
+      date: new Date().toISOString(),
+      status: 'COMPLETED'
+    };
+
+    setWithdrawals(prev => [newWithdrawal, ...prev]);
+    toast.success(`Withdrawal of Rs.${availableBalance} initiated via ${method} to ${details}!`);
+    setAvailableBalance(0);
   };
 
   return (
@@ -172,7 +215,11 @@ export const RiderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       rider,
       orders,
       activeOrder,
-      earnings,
+      availableBalance,
+      lifetimeEarnings,
+      incentives,
+      totalDeliveries,
+      withdrawals,
       login,
       signup,
       logout,

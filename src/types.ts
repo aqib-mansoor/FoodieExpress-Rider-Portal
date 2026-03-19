@@ -42,6 +42,15 @@ export interface EarningSummary {
   orders: number;
 }
 
+export interface Withdrawal {
+  id: string;
+  amount: number;
+  method: string;
+  details: string;
+  date: string;
+  status: 'COMPLETED' | 'PENDING';
+}
+
 export interface RiderProfile {
   id: string;
   name: string;

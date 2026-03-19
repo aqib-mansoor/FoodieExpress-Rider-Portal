@@ -9,20 +9,20 @@ const createAppPin = (iconSvg: string, color: string) => L.divIcon({
   html: `
     <div class="relative flex flex-col items-center group">
       <!-- Teardrop Pin -->
-      <div class="relative w-12 h-12 rounded-full rounded-bl-none rotate-45 flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.2)] border-2 border-white transition-transform duration-300 group-hover:scale-110" style="background-color: ${color}">
+      <div class="relative w-12 h-12 rounded-full rounded-bl-none rotate-45 flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.3)] border-[3px] border-white transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1" style="background-color: ${color}">
         <!-- Icon (Counter-rotated) -->
-        <div class="-rotate-45 text-white flex items-center justify-center drop-shadow-sm">
+        <div class="-rotate-45 text-white flex items-center justify-center drop-shadow-md">
           ${iconSvg}
         </div>
       </div>
       <!-- Shadow -->
-      <div class="w-5 h-1 bg-black/15 rounded-full blur-[2px] mt-1.5 transition-all duration-300 group-hover:scale-x-125 group-hover:opacity-20"></div>
+      <div class="w-4 h-1 bg-black/20 rounded-full blur-[3px] mt-2 transition-all duration-500 group-hover:scale-x-150 group-hover:opacity-30"></div>
     </div>
   `,
   className: 'app-pin-marker',
-  iconSize: [48, 60],
-  iconAnchor: [24, 56],
-  popupAnchor: [0, -50]
+  iconSize: [48, 64],
+  iconAnchor: [24, 60],
+  popupAnchor: [0, -54]
 });
 
 // Rider Marker (inDrive style)
@@ -30,25 +30,25 @@ const createRiderMarker = (color: string = '#10b981') => L.divIcon({
   html: `
     <div class="relative flex items-center justify-center group">
       <!-- Pulsing Rings -->
-      <div class="absolute w-14 h-14 rounded-full animate-ping opacity-20" style="background-color: ${color}"></div>
-      <div class="absolute w-10 h-10 rounded-full animate-pulse opacity-40" style="background-color: ${color}"></div>
+      <div class="absolute w-16 h-16 rounded-full animate-ping opacity-30" style="background-color: ${color}"></div>
+      <div class="absolute w-12 h-12 rounded-full animate-pulse opacity-50" style="background-color: ${color}"></div>
       
       <!-- Outer Circle -->
-      <div class="relative w-11 h-11 rounded-full bg-white shadow-[0_4px_15px_rgba(0,0,0,0.25)] flex items-center justify-center border-2 transition-transform duration-300 group-hover:scale-110" style="border-color: ${color}">
+      <div class="relative w-12 h-12 rounded-full bg-white shadow-[0_6px_20px_rgba(0,0,0,0.3)] flex items-center justify-center border-[3px] transition-all duration-500 group-hover:scale-110" style="border-color: ${color}">
         <!-- Inner Circle with Icon -->
-        <div class="w-8.5 h-8.5 rounded-full flex items-center justify-center text-white" style="background-color: ${color}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 15h.01"/><path d="M14 15h.01"/><path d="M16 10H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2Z"/><path d="M15 6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4h10V6Z"/><path d="M10 10v4"/><path d="M14 10v4"/></svg>
+        <div class="w-9 h-9 rounded-full flex items-center justify-center text-white shadow-inner" style="background-color: ${color}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 15h.01"/><path d="M14 15h.01"/><path d="M16 10H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2Z"/><path d="M15 6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4h10V6Z"/><path d="M10 10v4"/><path d="M14 10v4"/></svg>
         </div>
       </div>
       
       <!-- Direction Arrow -->
-      <div class="absolute -top-1 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] transition-all duration-300 group-hover:-top-2" style="border-bottom-color: ${color}"></div>
+      <div class="absolute -top-2 w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-b-[10px] transition-all duration-500 group-hover:-top-3" style="border-bottom-color: ${color}"></div>
     </div>
   `,
   className: 'rider-marker',
-  iconSize: [56, 56],
-  iconAnchor: [28, 28],
-  popupAnchor: [0, -25]
+  iconSize: [64, 64],
+  iconAnchor: [32, 32],
+  popupAnchor: [0, -32]
 });
 
 // SVG Icons for pins
@@ -133,18 +133,52 @@ export const Map: React.FC<MapProps> = ({ order }) => {
         
         <Marker position={pickupPos} icon={isMart ? martIcon : restaurantIcon}>
           <Popup>
-            <div className="text-xs">
-              <p className="font-bold">{isMart ? 'Mart' : 'Restaurant'}: {order.restaurantName}</p>
-              <p>{order.restaurantLocation.address}</p>
+            <div className="p-1 min-w-[160px]">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0" style={{ backgroundColor: '#FF6B00' }}>
+                  {isMart ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider leading-none mb-0.5">Pickup Location</p>
+                  <p className="text-sm font-bold text-stone-900 leading-tight">{order.restaurantName}</p>
+                </div>
+              </div>
+              <p className="text-xs text-stone-500 mb-3 leading-relaxed">{order.restaurantLocation.address}</p>
+              <button 
+                onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${pickupPos[0]},${pickupPos[1]}`, '_blank')}
+                className="w-full bg-[#FF6B00] text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors shadow-lg shadow-orange-900/10"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 11 18-5-5 18-2-8-8-2Z"/></svg>
+                Navigate Now
+              </button>
             </div>
           </Popup>
         </Marker>
 
         <Marker position={deliveryPos} icon={homeIcon}>
           <Popup>
-            <div className="text-xs">
-              <p className="font-bold">Delivery: {order.customer.name}</p>
-              <p>{order.deliveryLocation.address}</p>
+            <div className="p-1 min-w-[160px]">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0" style={{ backgroundColor: '#3b82f6' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider leading-none mb-0.5">Delivery Location</p>
+                  <p className="text-sm font-bold text-stone-900 leading-tight">{order.customer.name}</p>
+                </div>
+              </div>
+              <p className="text-xs text-stone-500 mb-3 leading-relaxed">{order.deliveryLocation.address}</p>
+              <button 
+                onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${deliveryPos[0]},${deliveryPos[1]}`, '_blank')}
+                className="w-full bg-blue-500 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors shadow-lg shadow-blue-900/10"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 11 18-5-5 18-2-8-8-2Z"/></svg>
+                Navigate Now
+              </button>
             </div>
           </Popup>
         </Marker>

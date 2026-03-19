@@ -7,7 +7,7 @@ import { Map } from './Map';
 import { formatCurrency, cn } from '../utils';
 
 export const Dashboard: React.FC = () => {
-  const { rider, activeOrder, updateOrderStatus, toggleOnline, simulateNewOrder, earnings } = useRiderStore();
+  const { rider, activeOrder, updateOrderStatus, toggleOnline, simulateNewOrder, availableBalance, totalDeliveries } = useRiderStore();
 
   return (
     <div className="space-y-8">
@@ -43,8 +43,8 @@ export const Dashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon={<TrendingUp className="text-[#FF6B00]" />} label="Today's Earnings" value={formatCurrency(earnings)} />
-        <StatCard icon={<Package className="text-blue-500" />} label="Deliveries" value={rider.totalDeliveries.toString()} />
+        <StatCard icon={<TrendingUp className="text-[#FF6B00]" />} label="Today's Earnings" value={formatCurrency(availableBalance)} />
+        <StatCard icon={<Package className="text-blue-500" />} label="Deliveries" value={totalDeliveries.toString()} />
         <StatCard icon={<Star className="text-amber-500" />} label="Rating" value={rider.rating.toString()} />
         <StatCard icon={<Clock className="text-purple-500" />} label="Online Time" value="4h 20m" />
       </section>
