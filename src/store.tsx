@@ -122,8 +122,6 @@ export const RiderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const updateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
-    
     if (status === 'DELIVERED') {
       const deliveredOrder = orders.find(o => o.id === orderId);
       if (deliveredOrder) {
@@ -131,30 +129,45 @@ export const RiderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setTotalDeliveries(prev => prev + 1);
         
         // Update earnings
-        setAvailableBalance(prev => prev + deliveredOrder.deliveryFee);
-        setLifetimeEarnings(prev => prev + deliveredOrder.deliveryFee);
+        const earnedIncentive = (totalDeliveries + 1) % 5 === 0 ? 50 : 0;
+        setAvailableBalance(prev => prev + deliveredOrder.deliveryFee + earnedIncentive);
+        setLifetimeEarnings(prev => prev + deliveredOrder.deliveryFee + earnedIncentive);
         
-        // Add small incentive for every 5th delivery
-        if ((totalDeliveries + 1) % 5 === 0) {
-          setIncentives(prev => prev + 50);
-          setAvailableBalance(prev => prev + 50);
-          setLifetimeEarnings(prev => prev + 50);
+        if (earnedIncentive > 0) {
+          setIncentives(prev => prev + earnedIncentive);
           toast.success('Bonus incentive earned! 🌟');
         }
-      }
-      
-      setActiveOrderId(null);
-      toast.success('Order delivered! Great job.');
 
-      // Automatically assign next pending order if available
-      setTimeout(() => {
-        const nextOrder = orders.find(o => o.status === 'PENDING' && o.id !== orderId);
-        if (nextOrder) {
-          acceptOrder(nextOrder.id);
-          toast('Next order automatically assigned!', { icon: '🛵' });
-        }
-      }, 2000);
+        // Update the order in the list with its earned incentive and delivery time
+        setOrders(prev => prev.map(o => 
+          o.id === orderId ? { 
+            ...o, 
+            status, 
+            deliveredAt: new Date().toISOString(), 
+            incentive: earnedIncentive 
+          } : o
+        ));
+        
+        setActiveOrderId(null);
+        toast.success('Order delivered! Great job.');
+
+        // Automatically assign next pending order if available
+        setTimeout(() => {
+          const nextOrder = orders.find(o => o.status === 'PENDING' && o.id !== orderId);
+          if (nextOrder) {
+            acceptOrder(nextOrder.id);
+            toast('Next order automatically assigned!', { icon: '🛵' });
+          }
+        }, 2000);
+      }
     } else {
+      setOrders(prev => prev.map(o => 
+        o.id === orderId ? { 
+          ...o, 
+          status, 
+          pickedUpAt: status === 'PICKED_UP' ? new Date().toISOString() : o.pickedUpAt 
+        } : o
+      ));
       toast.success(`Status updated to ${status.replace('_', ' ')}`);
     }
   };
@@ -178,6 +191,7 @@ export const RiderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       items: [{ name: 'Chicken Karahi', quantity: 1 }, { name: 'Naan', quantity: 4 }],
       totalAmount: 2800,
       deliveryFee: 250,
+      incentive: 0,
       paymentMethod: 'CASH',
       createdAt: new Date().toISOString(),
     };
@@ -195,18 +209,27 @@ export const RiderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
     
+    const withdrawalId = `wth-${Date.now()}`;
+    const amountToWithdraw = availableBalance;
+    
     const newWithdrawal: Withdrawal = {
-      id: `wth-${Date.now()}`,
-      amount: availableBalance,
+      id: withdrawalId,
+      amount: amountToWithdraw,
       method,
       details,
       date: new Date().toISOString(),
-      status: 'COMPLETED'
+      status: 'PENDING'
     };
 
     setWithdrawals(prev => [newWithdrawal, ...prev]);
-    toast.success(`Withdrawal of Rs.${availableBalance} initiated via ${method} to ${details}!`);
     setAvailableBalance(0);
+    
+    toast.loading(`Processing withdrawal of Rs.${amountToWithdraw}...`, { id: withdrawalId });
+
+    setTimeout(() => {
+      setWithdrawals(prev => prev.map(w => w.id === withdrawalId ? { ...w, status: 'COMPLETED' } : w));
+      toast.success(`Withdrawal of Rs.${amountToWithdraw} successful! 💸`, { id: withdrawalId });
+    }, 3000);
   };
 
   return (

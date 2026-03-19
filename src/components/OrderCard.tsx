@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Phone, ChevronRight, Package, Navigation, Map as MapIcon } from 'lucide-react';
+import { MapPin, Phone, ChevronRight, Package, Navigation, Map as MapIcon, Info, Clock, CreditCard, DollarSign } from 'lucide-react';
 import { Order } from '../types';
 import { cn, formatCurrency, calculateDistance } from '../utils';
 import { Map } from './Map';
@@ -13,6 +13,7 @@ interface OrderCardProps {
 
 export const OrderCard: React.FC<OrderCardProps> = ({ order, onUpdateStatus, onAccept }) => {
   const [showMap, setShowMap] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const isPending = order.status === 'PENDING';
   const isAssigned = order.status === 'ASSIGNED';
   const isPickedUp = order.status === 'PICKED_UP';
@@ -54,15 +55,23 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onUpdateStatus, onA
             <span className="text-xs font-mono text-stone-400 uppercase tracking-widest">{order.orderNumber}</span>
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-bold text-stone-900">{order.restaurantName}</h3>
-              <button 
-                onClick={() => setShowMap(!showMap)}
-                className={cn(
-                  "p-1 rounded-lg transition-colors",
-                  showMap ? "bg-orange-100 text-[#FF6B00]" : "bg-stone-100 text-stone-400 hover:text-stone-600"
-                )}
-              >
-                <MapIcon size={16} />
-              </button>
+              <div className="flex gap-1">
+                <button 
+                  onClick={() => setShowMap(!showMap)}
+                  className={cn(
+                    "p-1 rounded-lg transition-colors",
+                    showMap ? "bg-orange-100 text-[#FF6B00]" : "bg-stone-100 text-stone-400 hover:text-stone-600"
+                  )}
+                >
+                  <MapIcon size={16} />
+                </button>
+                <button 
+                  onClick={() => setShowDetails(true)}
+                  className="p-1 rounded-lg bg-stone-100 text-stone-400 hover:text-stone-600 transition-colors"
+                >
+                  <Info size={16} />
+                </button>
+              </div>
             </div>
           </div>
           <div className={cn(
@@ -172,6 +181,135 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onUpdateStatus, onA
           <Navigation size={20} />
         </button>
       </div>
+
+      {/* Order Details Modal */}
+      <AnimatePresence>
+        {showDetails && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDetails(false)}
+              className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
+            >
+              <div className="p-6 border-b border-stone-100 flex items-center justify-between">
+                <h3 className="text-xl font-bold text-stone-900">Order Details</h3>
+                <button onClick={() => setShowDetails(false)} className="p-2 hover:bg-stone-100 rounded-full transition-colors">
+                  <ChevronRight className="rotate-90" size={20} />
+                </button>
+              </div>
+              
+              <div className="p-6 max-h-[70vh] overflow-y-auto space-y-6">
+                {/* Status Timeline */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider">Timeline</h4>
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                        <Clock size={14} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-stone-900">Order Placed</p>
+                        <p className="text-xs text-stone-400">{new Date(order.createdAt).toLocaleString()}</p>
+                      </div>
+                    </div>
+                    {order.pickedUpAt && (
+                      <div className="flex gap-3">
+                        <div className="w-6 h-6 rounded-full bg-orange-100 text-[#FF6B00] flex items-center justify-center shrink-0">
+                          <Package size={14} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-stone-900">Picked Up</p>
+                          <p className="text-xs text-stone-400">{new Date(order.pickedUpAt).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    )}
+                    {order.deliveredAt && (
+                      <div className="flex gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                          <MapPin size={14} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-stone-900">Delivered</p>
+                          <p className="text-xs text-stone-400">{new Date(order.deliveredAt).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Earnings Breakdown */}
+                <div className="bg-stone-50 rounded-2xl p-5 border border-stone-100 space-y-4">
+                  <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider flex items-center gap-2">
+                    <DollarSign size={14} />
+                    Earnings Breakdown
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-stone-500">Base Delivery Fee</span>
+                      <span className="font-bold text-stone-900">{formatCurrency(order.deliveryFee)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-stone-500">Incentive / Bonus</span>
+                      <span className="font-bold text-emerald-600">+{formatCurrency(order.incentive || 0)}</span>
+                    </div>
+                    <div className="pt-2 border-t border-stone-200 flex justify-between">
+                      <span className="font-bold text-stone-900">Total Earnings</span>
+                      <span className="font-bold text-[#FF6B00]">{formatCurrency(order.deliveryFee + (order.incentive || 0))}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Info */}
+                <div className="flex items-center justify-between p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                      <CreditCard size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-stone-400 font-bold uppercase tracking-wider">Payment Method</p>
+                      <p className="text-sm font-bold text-stone-900">{order.paymentMethod}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-stone-400 font-bold uppercase tracking-wider">Order Total</p>
+                    <p className="text-sm font-bold text-stone-900">{formatCurrency(order.totalAmount)}</p>
+                  </div>
+                </div>
+
+                {/* Items List */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider">Items</h4>
+                  <div className="space-y-2">
+                    {order.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center py-2 border-b border-stone-100 last:border-0">
+                        <span className="text-sm text-stone-700">{item.name}</span>
+                        <span className="text-sm font-bold text-stone-900">x{item.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6 bg-stone-50 border-t border-stone-100">
+                <button 
+                  onClick={() => setShowDetails(false)}
+                  className="w-full py-3 bg-stone-900 text-white font-bold rounded-xl hover:bg-stone-800 transition-colors"
+                >
+                  Close Details
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

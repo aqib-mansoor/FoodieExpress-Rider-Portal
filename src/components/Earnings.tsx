@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { Wallet, ArrowUpRight, ArrowDownRight, History, TrendingUp, Calendar, X, CreditCard, Landmark, Smartphone } from 'lucide-react';
+import { Wallet, ArrowUpRight, ArrowDownRight, History, TrendingUp, Calendar, X, CreditCard, Landmark, Smartphone, Package, ChevronRight } from 'lucide-react';
 import { MOCK_EARNINGS } from '../mockData';
 import { formatCurrency } from '../utils';
 import { useRiderStore } from '../store';
 import { motion, AnimatePresence } from 'motion/react';
+import { Order, Withdrawal } from '../types';
+import { cn } from '../utils';
 
 export const Earnings: React.FC = () => {
   const { availableBalance, lifetimeEarnings, withdrawFunds, totalDeliveries, incentives, orders, withdrawals } = useRiderStore();
@@ -12,6 +14,7 @@ export const Earnings: React.FC = () => {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [activeHistoryTab, setActiveHistoryTab] = useState<'earnings' | 'withdrawals'>('earnings');
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<Withdrawal | null>(null);
   
   // Withdrawal state
   const [withdrawStep, setWithdrawStep] = useState<'select' | 'details' | 'confirm'>('select');
@@ -393,24 +396,39 @@ export const Earnings: React.FC = () => {
                 ) : (
                   withdrawals.length > 0 ? (
                     withdrawals.map((withdrawal) => (
-                      <div key={withdrawal.id} className="p-4 bg-stone-50 rounded-2xl border border-stone-100">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center">
-                              <ArrowDownRight size={20} />
+                      <button 
+                        key={withdrawal.id} 
+                        onClick={() => setSelectedWithdrawal(withdrawal)}
+                        className="w-full text-left p-4 bg-stone-50 rounded-2xl border border-stone-100 hover:border-[#FF6B00] transition-all group mb-4 last:mb-0"
+                      >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center group-hover:bg-[#FF6B00] group-hover:text-white transition-colors">
+                                <ArrowDownRight size={20} />
+                              </div>
+                              <div>
+                                <p className="font-bold text-stone-900">{withdrawal.method}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs text-stone-400">{new Date(withdrawal.date).toLocaleDateString()}</p>
+                                  <span className={cn(
+                                    "text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider",
+                                    withdrawal.status === 'COMPLETED' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                                  )}>
+                                    {withdrawal.status}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-bold text-stone-900">{withdrawal.method}</p>
-                              <p className="text-xs text-stone-400">{new Date(withdrawal.date).toLocaleDateString()}</p>
+                            <div className="text-right flex items-center gap-1">
+                              <p className="font-bold text-rose-600">-{formatCurrency(withdrawal.amount)}</p>
+                              <ChevronRight size={14} className="text-stone-300 group-hover:text-[#FF6B00]" />
                             </div>
                           </div>
-                          <p className="font-bold text-rose-600">-{formatCurrency(withdrawal.amount)}</p>
-                        </div>
-                        <div className="bg-white/50 p-3 rounded-xl border border-stone-100">
+                        <div className="bg-white/50 p-3 rounded-xl border border-stone-100 group-hover:bg-white transition-colors">
                           <p className="text-[10px] text-stone-400 uppercase font-bold tracking-wider mb-1">Account Details</p>
                           <p className="text-sm font-medium text-stone-700 truncate">{withdrawal.details}</p>
                         </div>
-                      </div>
+                      </button>
                     ))
                   ) : (
                     <div className="text-center py-10">
@@ -418,6 +436,90 @@ export const Earnings: React.FC = () => {
                     </div>
                   )
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      
+      {/* Withdrawal Receipt Modal */}
+      <AnimatePresence>
+        {selectedWithdrawal && (
+          <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedWithdrawal(null)}
+              className="absolute inset-0 bg-stone-900/80 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 right-0 h-32 bg-[#FF6B00]" />
+              
+              <div className="relative pt-12 pb-8 px-8 text-center">
+                <div className="w-20 h-20 bg-white rounded-3xl shadow-xl mx-auto mb-6 flex items-center justify-center text-[#FF6B00]">
+                  <ArrowDownRight size={40} />
+                </div>
+                
+                <h3 className="text-2xl font-black text-stone-900 mb-1">Withdrawal Receipt</h3>
+                <p className="text-stone-400 text-sm mb-8 font-mono uppercase tracking-widest">#{selectedWithdrawal.id.slice(0, 8)}</p>
+                
+                <div className="space-y-6 text-left">
+                  <div className="flex justify-between items-center py-3 border-b border-stone-100">
+                    <span className="text-stone-400 text-sm font-bold uppercase tracking-wider">Amount</span>
+                    <span className="text-2xl font-black text-[#FF6B00]">{formatCurrency(selectedWithdrawal.amount)}</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-stone-400 text-[10px] font-bold uppercase tracking-wider mb-1">Method</p>
+                      <p className="text-sm font-bold text-stone-900">{selectedWithdrawal.method}</p>
+                    </div>
+                    <div>
+                      <p className="text-stone-400 text-[10px] font-bold uppercase tracking-wider mb-1">Status</p>
+                      <span className={cn(
+                        "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                        selectedWithdrawal.status === 'COMPLETED' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                      )}>
+                        {selectedWithdrawal.status}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <p className="text-stone-400 text-[10px] font-bold uppercase tracking-wider mb-1">Account Details</p>
+                    <p className="text-sm font-mono text-stone-700 bg-stone-50 p-3 rounded-xl border border-stone-100 break-all">
+                      {selectedWithdrawal.details}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-stone-400 text-[10px] font-bold uppercase tracking-wider mb-1">Date & Time</p>
+                    <p className="text-sm font-bold text-stone-900">
+                      {new Date(selectedWithdrawal.date).toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
+                    </p>
+                    <p className="text-xs text-stone-400">
+                      {new Date(selectedWithdrawal.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setSelectedWithdrawal(null)}
+                  className="w-full mt-10 py-4 rounded-2xl font-black text-white bg-stone-900 hover:bg-stone-800 transition-all shadow-lg shadow-stone-200"
+                >
+                  Close Receipt
+                </button>
               </div>
             </motion.div>
           </div>
@@ -440,12 +542,4 @@ const WithdrawOption: React.FC<{ icon: React.ReactNode; label: string; onSelect:
     </div>
     <ChevronRight size={18} className="text-stone-300 group-hover:text-[#FF6B00]" />
   </button>
-);
-
-const Package: React.FC<{ size?: number; className?: string }> = ({ size = 24, className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
-);
-
-const ChevronRight: React.FC<{ size?: number; className?: string }> = ({ size = 24, className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"/></svg>
 );

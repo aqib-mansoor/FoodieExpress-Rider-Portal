@@ -29,6 +29,7 @@ export interface Order {
   items: { name: string; quantity: number }[];
   totalAmount: number;
   deliveryFee: number;
+  incentive: number;
   paymentMethod: 'CARD' | 'CASH';
   specialInstructions?: string;
   createdAt: string;

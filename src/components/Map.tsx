@@ -8,6 +8,9 @@ import { calculateDistance } from '../utils';
 const createAppPin = (iconSvg: string, color: string) => L.divIcon({
   html: `
     <div class="relative flex flex-col items-center group">
+      <!-- Pulsing Ring -->
+      <div class="absolute w-12 h-12 rounded-full animate-pulse opacity-20 -translate-y-4" style="background-color: ${color}"></div>
+      
       <!-- Teardrop Pin -->
       <div class="relative w-12 h-12 rounded-full rounded-bl-none rotate-45 flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.3)] border-[3px] border-white transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1" style="background-color: ${color}">
         <!-- Icon (Counter-rotated) -->
