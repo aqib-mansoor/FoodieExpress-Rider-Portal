@@ -1,20 +1,44 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# FoodieExpress - Rider Portal
 
-# Run and deploy your AI Studio app
+A high-performance, professional delivery partner application designed for riders to manage orders, track real-time earnings, and navigate deliveries with precision.
 
-This contains everything you need to run your app locally.
+## 🚀 Key Features
 
-View your app in AI Studio: https://ai.studio/apps/af74cbe5-f796-4295-8ea3-18abb9098506
+### 🛵 Order Management
+- **Live Dispatch**: Receive new delivery requests in real-time.
+- **Workflow Automation**: Simple one-tap status updates (Accept -> Pickup -> Start Delivery -> Delivered).
+- **Order Receipts**: View detailed breakdowns of items, customer instructions, and earnings for every order.
 
-## Run Locally
+### 💰 Financial Hub
+- **Real-time Balance**: Track lifetime earnings, incentives, and current available balance.
+- **Smart Withdrawals**: Secure, multi-step withdrawal process supporting Bank Transfer, JazzCash, and EasyPaisa.
+- **Withdrawal History**: Fully searchable history with detailed transaction receipts for every withdrawal.
+- **Performance Metrics**: View total deliveries, average earnings per order, and completion rates.
 
-**Prerequisites:**  Node.js
+### 📍 Interactive Navigation
+- **Live Tracking Map**: Real-time rider positioning with smooth animations.
+- **Smart Markers**: Custom pulsing "App Pin" markers for restaurants and delivery locations.
+- **One-Tap Navigation**: Direct integration with Google Maps for accurate routing.
 
+### 🎨 Premium UI/UX
+- **Responsive Design**: Optimized for mobile-first rider usage while featuring a professional split-screen portal for desktop.
+- **Dynamic Animations**: Utilizing Framer Motion for fluid transitions and state changes.
+- **Brand Identity**: Clean, FoodieExpress orange theme with high-contrast typography (Inter/JetBrains Mono).
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🛠️ Technology Stack
+- **Frontend**: React 18, Vite, TypeScript
+- **State Management**: Zustand
+- **Animations**: Framer Motion
+- **Map Engine**: Leaflet / React-Leaflet
+- **Styling**: Tailwind CSS
+- **Notifications**: React Hot Toast
+- **Icons**: Lucide React
+
+## 🚦 Getting Started
+1. **Login**: Use test credentials `ali@gmail.com` / `123456`.
+2. **Dashboard**: View your daily earnings and active status.
+3. **Orders**: Accept tasks and follow the map to complete deliveries.
+4. **Earnings**: Navigate to the Earnings tab to view your performance charts and initiate withdrawals.
+
+---
+*Crafted for the modern delivery workforce.*
